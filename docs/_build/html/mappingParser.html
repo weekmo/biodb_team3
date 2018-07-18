@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data downloader &amp; parser &mdash; biodb_team_3 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="biodb_team_3 0.1.0 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> biodb_team_3
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">biodb_team_3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="databaseManager.html">Database Manager</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">biodb_team_3</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Data downloader &amp; parser</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/mappingParser.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-biodb_team_3.mapping_parser_v2">
+<span id="data-downloader-parser"></span><h1>Data downloader &amp; parser<a class="headerlink" href="#module-biodb_team_3.mapping_parser_v2" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="biodb_team_3.mapping_parser_v2.get_data">
+<code class="descclassname">biodb_team_3.mapping_parser_v2.</code><code class="descname">get_data</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biodb_team_3/mapping_parser_v2.html#get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biodb_team_3.mapping_parser_v2.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to get data from url (‘<a class="reference external" href="http://www.uniprot.org/docs/mimtosp.txt">http://www.uniprot.org/docs/mimtosp.txt</a>’)
+and parse it to a list of lists contains OMIM IDs, genes or proteins names
+and uniprot IDs.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biodb_team_3.mapping_parser_v2.get_omim_phenotype_ids">
+<code class="descclassname">biodb_team_3.mapping_parser_v2.</code><code class="descname">get_omim_phenotype_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/biodb_team_3/mapping_parser_v2.html#get_omim_phenotype_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biodb_team_3.mapping_parser_v2.get_omim_phenotype_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a list of OMIM Ids that link to phenotypes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biodb_team_3.mapping_parser_v2.start_reading">
+<code class="descclassname">biodb_team_3.mapping_parser_v2.</code><code class="descname">start_reading</code><span class="sig-paren">(</span><em>line</em>, <em>reading_bool</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biodb_team_3/mapping_parser_v2.html#start_reading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biodb_team_3.mapping_parser_v2.start_reading" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is checking the start of the lines</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, colin.birken.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

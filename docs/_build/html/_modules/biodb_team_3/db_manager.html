@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>biodb_team_3.db_manager &mdash; biodb_team_3 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="biodb_team_3 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> biodb_team_3
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">biodb_team_3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../databaseManager.html">Database Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mappingParser.html">Data downloader &amp; parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">biodb_team_3</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>biodb_team_3.db_manager</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for biodb_team_3.db_manager</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">create_engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">sessionmaker</span>
+<span class="kn">from</span> <span class="nn">.datamodel</span> <span class="k">import</span> <span class="n">Base</span><span class="p">,</span> <span class="n">Protein</span><span class="p">,</span> <span class="n">Disease</span><span class="p">,</span> <span class="n">association_table</span>
+<span class="kn">from</span> <span class="nn">.mapping_parser_v2</span> <span class="k">import</span> <span class="n">get_data</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="k">import</span> <span class="n">URL</span>
+
+<div class="viewcode-block" id="Manager"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager">[docs]</a><span class="k">class</span> <span class="nc">Manager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class that hanldes the database. Has functions for populating the</span>
+<span class="sd">    database as well as querying it.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">connection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">connection</span> <span class="o">=</span> <span class="s2">&quot;sqlite:///uniprot_disease.db&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">connection</span> <span class="o">=</span> <span class="s2">&quot;sqlite:///&quot;</span><span class="o">+</span><span class="n">connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session_maker</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">autoflush</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                          <span class="n">expire_on_commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_maker</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_tables</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proteins</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Manager.create_tables"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.create_tables">[docs]</a>    <span class="k">def</span> <span class="nf">create_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the empty database (tables)&quot;&quot;&quot;</span>
+        <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">checkfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Manager.drop_tables"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.drop_tables">[docs]</a>    <span class="k">def</span> <span class="nf">drop_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Drop all the tables in the database.&quot;&quot;&quot;</span>
+        <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">checkfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Manager.populate_db"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.populate_db">[docs]</a>    <span class="k">def</span> <span class="nf">populate_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Populates database with disease - protein association data</span>
+
+<span class="sd">        :param list of list data: Disease - protein association data, each single list begins with an OMIM id, followed by associated proteins&#39; uniprot name and accession number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">URL</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">proteins</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">proteins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_protein</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">disease</span> <span class="o">=</span> <span class="n">Disease</span><span class="p">(</span><span class="n">omim</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">proteins</span> <span class="o">=</span> <span class="n">proteins</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">disease</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Manager.create_protein"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.create_protein">[docs]</a>    <span class="k">def</span> <span class="nf">create_protein</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uniprot_name</span><span class="p">,</span> <span class="n">uniprot_accession</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If it doesn&#39;t exist, creates a protein object and returns</span>
+
+<span class="sd">        :param str uniprot_name: Uniprot name</span>
+<span class="sd">        :param str uniprot_accession: Uniprot accession number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">protein</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proteins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uniprot_accession</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">protein</span><span class="p">:</span>
+            <span class="n">protein</span> <span class="o">=</span> <span class="n">Protein</span><span class="p">(</span><span class="n">uniprot_name</span><span class="o">=</span><span class="n">uniprot_name</span><span class="p">,</span> <span class="n">uniprot_accession</span><span class="o">=</span><span class="n">uniprot_accession</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">proteins</span><span class="p">[</span><span class="n">uniprot_accession</span><span class="p">]</span> <span class="o">=</span> <span class="n">protein</span>
+        <span class="k">return</span> <span class="n">protein</span></div>
+
+<div class="viewcode-block" id="Manager.find_protein"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.find_protein">[docs]</a>    <span class="k">def</span> <span class="nf">find_protein</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uniprot_accession</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a protein name based on its accession</span>
+
+<span class="sd">        :param str uniprot_accesion: Uniprot accession number</span>
+<span class="sd">        :rtype str: Protein name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">protein</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Protein</span><span class="o">.</span><span class="n">uniprot_name</span><span class="p">)</span><span class="o">.</span>\
+        <span class="nb">filter</span><span class="p">(</span><span class="n">Protein</span><span class="o">.</span><span class="n">uniprot_accession</span> <span class="o">==</span> <span class="n">uniprot_accession</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">protein</span><span class="o">.</span><span class="n">one_or_none</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Manager.query_for_protein_single"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.query_for_protein_single">[docs]</a>    <span class="k">def</span> <span class="nf">query_for_protein_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omim_id</span><span class="p">,</span> <span class="n">pckl</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function will take an omim ID and return a list of associated protein.</span>
+<span class="sd">        It can also return/save the pickled list for downstream pipelines</span>
+
+<span class="sd">        :param string omim_id: OMIM disease ID</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">protein</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Protein</span><span class="o">.</span><span class="n">uniprot_accession</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">join</span><span class="p">(</span><span class="n">association_table</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">join</span><span class="p">(</span><span class="n">Disease</span><span class="p">)</span><span class="o">.</span>\
+        <span class="nb">filter</span><span class="p">(</span><span class="n">Disease</span><span class="o">.</span><span class="n">omim</span> <span class="o">==</span> <span class="n">omim_id</span><span class="p">)</span>
+
+        <span class="c1">#executing the query and parsing the result as a list</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">protein</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">pckl</span><span class="p">:</span>
+            <span class="c1">#if pckl (pickled) flag is given, the pickled list object will be</span>
+            <span class="c1">#dumped to the current working directory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pickleIt</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Manager.query_for_disease_single"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.query_for_disease_single">[docs]</a>    <span class="k">def</span> <span class="nf">query_for_disease_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uniprot_id</span><span class="p">,</span> <span class="n">pckl</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes an uniprot ID as input and returns OMIM IDs of the associated diseases.</span>
+<span class="sd">        It can also return/save the pickled list for downstream pipelines</span>
+
+<span class="sd">        :param string uniprot_id: Uniprot protein ID</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">disease</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Disease</span><span class="o">.</span><span class="n">omim</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">join</span><span class="p">(</span><span class="n">association_table</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">join</span><span class="p">(</span><span class="n">Protein</span><span class="p">)</span><span class="o">.</span>\
+        <span class="nb">filter</span><span class="p">(</span><span class="n">Protein</span><span class="o">.</span><span class="n">uniprot_accession</span> <span class="o">==</span> <span class="n">uniprot_id</span><span class="p">)</span>
+
+        <span class="c1">#executing the query and parsing the result as a list</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">disease</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">pckl</span><span class="p">:</span>
+            <span class="c1">#if pckl (pickled) flag is given, the pickled list object will be</span>
+            <span class="c1">#dumped to the current working directory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pickleIt</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Manager.pickleIt"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.pickleIt">[docs]</a>    <span class="k">def</span> <span class="nf">pickleIt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function dumps the given object as a pickled file to the current</span>
+<span class="sd">        working directory and informs the user</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="kn">import</span> <span class="nn">pickle</span>
+        <span class="n">currentWD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">currentWD</span><span class="p">,</span> <span class="s2">&quot;resultList&quot;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fileHandle</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">fileHandle</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pickled result list dumped at: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">currentWD</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Manager.get_omim_id_with_uniprot_id"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.get_omim_id_with_uniprot_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_omim_id_with_uniprot_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accessions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Query the database with an uniprot accession and retrieve omim ids</span>
+
+<span class="sd">        :param list accession: Uniprot accession</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">accession</span> <span class="ow">in</span> <span class="n">accessions</span><span class="p">:</span>
+            <span class="n">prots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Protein</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Protein</span><span class="o">.</span><span class="n">uniprot_accession</span> <span class="o">==</span> <span class="n">accession</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">protein</span> <span class="ow">in</span> <span class="n">prots</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="p">[</span><span class="n">disease</span><span class="o">.</span><span class="n">omim</span> <span class="k">for</span> <span class="n">disease</span> <span class="ow">in</span> <span class="n">protein</span><span class="o">.</span><span class="n">diseases</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Manager.get_uniprot_id_with_omim_id"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.get_uniprot_id_with_omim_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_uniprot_id_with_omim_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accessions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Query the database with an omim identifier to then retrieve uniprot</span>
+<span class="sd">        accessions.</span>
+
+<span class="sd">        :param list accession: OMIM identifier</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">accession</span> <span class="ow">in</span> <span class="n">accessions</span><span class="p">:</span>
+            <span class="n">diseases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Disease</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Disease</span><span class="o">.</span><span class="n">omim</span> <span class="o">==</span> <span class="n">accession</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">disease</span> <span class="ow">in</span> <span class="n">diseases</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="p">[</span><span class="n">protein</span><span class="o">.</span><span class="n">uniprot_accession</span> <span class="k">for</span> <span class="n">protein</span> <span class="ow">in</span> <span class="n">disease</span><span class="o">.</span><span class="n">proteins</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Manager.get_associated_disease_with_omim_id"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.get_associated_disease_with_omim_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_associated_disease_with_omim_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omim_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Query associated(share associated proteins) diseases with given omim identifier</span>
+
+<span class="sd">        :param str omim_id：OMIM identifier</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">associated_proteins_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_for_protein_single</span><span class="p">(</span><span class="n">omim_id</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_omim_id_with_uniprot_id</span><span class="p">(</span><span class="n">associated_proteins_id</span><span class="p">))</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">omim_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Manager.get_shared_associated_proteins_by_omim_ids"><a class="viewcode-back" href="../../databaseManager.html#biodb_team_3.db_manager.Manager.get_shared_associated_proteins_by_omim_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_shared_associated_proteins_by_omim_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omim_ids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Query shared associated proteins&#39; id by a list of omim ids</span>
+
+<span class="sd">        :param list omim_ids: OMIM identifiers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">associated_protein_set_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">omim</span> <span class="ow">in</span> <span class="n">omim_ids</span><span class="p">:</span>
+            <span class="n">associated_protein_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_for_protein_single</span><span class="p">(</span><span class="n">omim</span><span class="p">)))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">associated_protein_set_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, colin.birken.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

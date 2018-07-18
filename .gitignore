@@ -1,0 +1,12 @@
+.Rhistory
+.DS_Store
+Thumbs.db
+mimtosp.txt
+test.py
+__pycache__
+data.txt
+uniprot_disease.db
+db_manager_dev.py
+datamodel.odp
+.ipynb_checkpoints
+biodb_team_3.egg-info
